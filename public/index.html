@@ -7,7 +7,7 @@
     <link href="styles.css" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
 
 
@@ -17,55 +17,56 @@
 
     <form id="chat">
         <input type="text" name="username" placeholder="Digite seu usuário">
-        <input style="margin-top: 10px;" type="text" autocomplete="off" name="message" placeholder="Digite sua mensagem">
+        <input style="margin-top: 10px;" type="text" autocomplete="off" name="message"
+            placeholder="Digite sua mensagem">
         <div style="overflow:auto;" class="messages"></div>
-        
+
         <button type="submit">Enviar</button>
     </form>
 
 
 
-<script> 
-    //Para rede externa logar com a URL da rede
-    var socket = io('http://192.168.0.7:3000');
+    <script>
+        //Para rede externa logar com a URL da rede
+        var socket = io('http://127.0.0.1:3000');
 
-    function renderMessage(message){
-        $('.messages'). append('<div class="message"><strong>' + message.author + '</strong>: ' + message.message + '</div>');
+        function renderMessage(message) {
+            $('.messages').append('<div class="message"><strong>' + message.author + '</strong>: ' + message.message + '</div>');
 
-        $('.messages').animate({ scrollTop: $(document).height() }, 0);
-    }
+            $('.messages').animate({ scrollTop: $(document).height() }, 0);
+        }
 
-    socket.on('receivedMessage', function(message){
-        renderMessage(message);
-    });
-    socket.on('previosMessage', function(messages){
-        for(message of messages) {
+        socket.on('receivedMessage', function (message) {
             renderMessage(message);
-        }
-    });
+        });
+        socket.on('previosMessage', function (messages) {
+            for (message of messages) {
+                renderMessage(message);
+            }
+        });
 
-    $('#chat').submit(function (event){
-        event.preventDefault();
+        $('#chat').submit(function (event) {
+            event.preventDefault();
 
-        var author = $('input[name=username]').val();
-        var message = $('input[name=message]').val();
+            var author = $('input[name=username]').val();
+            var message = $('input[name=message]').val();
 
-        if(author.length && message.length) {
-            var messageObject = {
-                author: author,
-                message: message,
-            };
+            if (author.length && message.length) {
+                var messageObject = {
+                    author: author,
+                    message: message,
+                };
 
-            renderMessage(messageObject);
+                renderMessage(messageObject);
 
-            socket.emit('sendMessage', messageObject);
-            $('input[name=message]').val(''); 
-            $('input[name=message]').focus();
-        }
+                socket.emit('sendMessage', messageObject);
+                $('input[name=message]').val('');
+                $('input[name=message]').focus();
+            }
 
-    });
+        });
 
-</script>
+    </script>
 </body>
 
 </html>

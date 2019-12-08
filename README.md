@@ -6,7 +6,6 @@
 - Rodar em rede local
 - Armazenamento em cache até reinicar o servidor
 
-
 ##### Bibliotecas utilizadas:
 
 1. socket-io
