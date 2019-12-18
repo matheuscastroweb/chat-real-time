@@ -5,46 +5,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="styles.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 </head>
 
 <body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-8">
+                <form id="chat">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="username" readonly
+                            placeholder="Digite seu usuário">
+                    </div>
 
-    <form id="chat">
-        <input type="text" name="username" placeholder="Digite seu usuário">
-        <input style="margin-top: 10px;" type="text" autocomplete="off" name="message"
-            placeholder="Digite sua mensagem">
-        <div style="overflow:auto;" class="messages"></div>
+                    <input class="form-control" style="margin-top: 10px;" type="text" autocomplete="off" name="message"
+                        placeholder="Digite sua mensagem">
+                    <div style="overflow:auto;" class="messages"></div>
 
-        <button type="submit">Enviar</button>
-    </form>
+                    <button class="btn btn-success" type="submit">Enviar</button>
+                    <button class="btn btn-danger" type="submit" id="sair">Sair</button>
+                </form>
+            </div>
+            <div class="col-4">
+                <ul class="list-group" id="users">
+
+                </ul>
+            </div>
+        </div>
 
 
+        <form id="autorizacao">
+            <div class="form-group">
+                <input class="form-control" type="text" name="usuario" placeholder="Digite sua login">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="password" name="senha" placeholder="Digite sua senha">
+            </div>
+
+            <button class="btn btn-success" type="submit">Acessar</button>
+        </form>
+
+        <audio style="display:none" id="notificacao" controls="controls">
+            <source src="S_Knock.ogg" type="audio/ogg"> </audio>
+    </div>
 
     <script>
+        var x = document.getElementById("notificacao");
+
         //Para rede externa logar com a URL da rede
-        var socket = io('http://127.0.0.1:3000');
+        var socket = io('http://192.168.0.7:3000');
 
         function renderMessage(message) {
             $('.messages').append('<div class="message"><strong>' + message.author + '</strong>: ' + message.message + '</div>');
 
-            $('.messages').animate({ scrollTop: $(document).height() }, 0);
+            $('.messages').animate({ scrollTop: 9999999999 }, 0);
         }
 
+        /* let users = [];
+         function renderUsers(data) {
+             for (i = 0; i < users.length; i++) {
+                 if (users.indexOf(data.author) > -1) {
+                     //encontrou
+                 } else {
+ 
+                 }
+             }
+             //$('#users').append(' <li class="list-group-item"><span class="badge badge-success">ONLINE</span> ' + message.author + '</li>');
+         }*/
+
+
         socket.on('receivedMessage', function (message) {
+            if (document.visibilityState === "hidden") {
+                x.play();
+            }
+
             renderMessage(message);
         });
+
+
         socket.on('previosMessage', function (messages) {
             for (message of messages) {
+                //renderUsers(message);
                 renderMessage(message);
             }
         });
 
+        $('#chat').hide();
         $('#chat').submit(function (event) {
             event.preventDefault();
 
@@ -66,7 +117,44 @@
 
         });
 
+        $('#autorizacao').submit(function (event) {
+            event.preventDefault();
+
+            var usuario = $('input[name=usuario]').val();
+            var senha = $('input[name=senha]').val();
+
+            if (senha === '123456') {
+                $('#chat').show();
+                $('input[name=username]').val(usuario);
+                $('#autorizacao').hide();
+                console.log("Login realizado:" + usuario)
+                $.cookie("autenticacao", usuario);
+
+
+            } else {
+                console.log("Falha ao logar:" + usuario)
+                alert('Senha incorreta')
+            }
+
+        });
+
+        if ($.cookie("autenticacao")) {
+            //alert("existe")
+            $('input[name=username]').val($.cookie("autenticacao"));
+            $('#autorizacao').hide();
+            $('#chat').show();
+        }
+
+        $("#sair").click(function () {
+            $.removeCookie('autenticacao', { path: '/' });
+            location.reload();
+        });
+
+
     </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

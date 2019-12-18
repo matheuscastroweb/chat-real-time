@@ -28,10 +28,13 @@ io.on('connection', socket => {
 
     socket.emit('previosMessage', messages);
 
+
     socket.on('sendMessage', data => {
         console.log(data);
         messages.push(data);
+
         socket.broadcast.emit('receivedMessage', data);
+
     });
 });
 
